@@ -161,6 +161,8 @@ class ContactFormManager {
     init() {
         if (contactForm) {
             this.bindEvents();
+            // Initialize EmailJS
+            emailjs.init("aHCAqqAQmFqMJKCVJ");
         }
     }
 
@@ -168,7 +170,7 @@ class ContactFormManager {
         contactForm.addEventListener('submit', (e) => this.handleSubmit(e));
     }
 
-    handleSubmit(e) {
+    async handleSubmit(e) {
         e.preventDefault();
         
         const formData = new FormData(contactForm);
@@ -179,8 +181,33 @@ class ContactFormManager {
             message: formData.get('message')
         };
 
-        this.showMessage('Message sent successfully! I\'ll get back to you soon.', 'success');
-        contactForm.reset();
+        try {
+            // Prepare template parameters for EmailJS
+            const templateParams = {
+                from_name: data.name,
+                from_email: data.email,
+                reply_to: data.email, // ensures Reply-To is the sender
+                subject: data.subject,
+                message: data.message,
+                to_name: "Vaibhav Shukla",
+                to_email: "vaibhavshukla565@gmail.com"
+            };
+
+            // Send email using EmailJS
+            const result = await emailjs.send(
+                "service_p4emh7z", // Service ID
+                "template_tqdl7ql", // Template ID
+                templateParams
+            );
+            
+            console.log('Email sent successfully:', result);
+            this.showMessage('Message sent successfully! I\'ll get back to you soon.', 'success');
+            contactForm.reset();
+        } catch (error) {
+            console.error('Error sending email:', error);
+            console.error('Error details:', error.text || error.message);
+            this.showMessage(`Error: ${error.text || error.message || 'Please check console for details'}`, 'error');
+        }
     }
 
     showMessage(message, type) {
@@ -212,12 +239,61 @@ class ContactFormManager {
     }
 }
 
+// Professional scroll-based animations
+function initScrollAnimations() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+            }
+        });
+    }, observerOptions);
+
+    // Observe all sections
+    document.querySelectorAll('section').forEach(section => {
+        observer.observe(section);
+    });
+
+    // Observe project cards
+    document.querySelectorAll('.project-card').forEach(card => {
+        observer.observe(card);
+    });
+
+    // Observe skill items
+    document.querySelectorAll('.skill-item').forEach(item => {
+        observer.observe(item);
+    });
+
+    // Observe certification items
+    document.querySelectorAll('.cert-item').forEach(item => {
+        observer.observe(item);
+    });
+
+    // Observe timeline items
+    document.querySelectorAll('.timeline-item').forEach(item => {
+        observer.observe(item);
+    });
+
+    // Observe interest items
+    document.querySelectorAll('.interest-item').forEach(item => {
+        observer.observe(item);
+    });
+}
+
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new ThemeManager();
     new NavigationManager();
     new SmoothScrollManager();
     new ContactFormManager();
+    
+    // Initialize scroll animations
+    initScrollAnimations();
     
     // Animate skill bars
     setTimeout(() => {
